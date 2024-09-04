@@ -3,6 +3,8 @@
 namespace PixellWeb\Paybox\app\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
+use PixellWeb\Paybox\app\PaymentRequest;
+use PixellWeb\Paybox\app\PaymentResponse;
 
 
 class Signature implements Rule
@@ -27,19 +29,7 @@ class Signature implements Rule
      */
     public function passes($attribute, $value)
     {
-        $string_param = '';
-        $signature='';
-        foreach ($value as $key => $data) {
-            if ($key == Paybox::PBX_RETOUR_SIGNATURE) {
-                $signature = base64_decode($data);
-                continue;
-            }
-            $string_param .= "&".$key.'='.$data;
-        }
-        $string_param = ltrim($string_param, '&');
-
-        $public_key = openssl_pkey_get_public(config('paybox.public_key'));
-        return openssl_verify($string_param, $signature, $public_key);
+        return (new PaymentResponse($value[PaymentRequest::PBX_RETOUR_SIGNATURE] ?? null, $value))->verifySignature();
     }
 
 

@@ -24,5 +24,13 @@ Ka1g88CjFwRw/PB9kwIDAQAB
     'logging_channel' => 'paiement',
 
     'rule_exists' => 'exists:reservations,reference',
+    'rule_transaction_unique' => 'unique:paiements,transaction_ref',
+
+    'url_annule'     => 'paiement.refuse',
+    //'url_effectue'     => 'reservation.confirmation',
+    'url_effectue'     => 'paiement.ipn',
+    'url_attente'      => 'reservation.confirmation',
+    'url_refuse'       => 'paiement.refuse',
+    'url_repondre_a'   => 'paiement.ipn',
 
 ];

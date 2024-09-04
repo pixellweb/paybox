@@ -4,7 +4,9 @@ namespace PixellWeb\Paybox\app\Console\Commands;
 
 
 use Illuminate\Console\Command;
+use Illuminate\Validation\Rule;
 use Ipsum\Admin\app\Classes\LogViewer;
+use Ipsum\Reservation\app\Models\Reservation\Paiement;
 use PixellWeb\Paybox\app\FormRequest\IPNResponse;
 use PixellWeb\Paybox\app\PaymentRequest;
 use PixellWeb\Paybox\app\Rules\Signature;
@@ -54,17 +56,20 @@ class Test extends Command
             preg_match('/Traitement IPN ({.*})/', $log['text'], $output_array);
 
             if (isset($output_array[1])) {
-                dump($output_array[1], json_decode($output_array[1], true));
 
-                $datas['query'] = json_decode($output_array[1], true);
+                $datas = json_decode($output_array[1], true);
+                $datas['query'] = $datas;
 
-
-
-                \Validator::make($datas, [
+                $validator = \Validator::make($datas, [
                     'query' => ['required', 'array', new Signature()],
-                ])->validate();
-
-
+                    'signature' => ['required'],
+                    'reference' => ['required'],
+                    'erreur' => ['required'],
+                    'montant' => ['nullable', 'numeric'],
+                ]);
+                if ($validator->fails()) {
+                    dump($validator->errors()->all(), $log, $datas['query']);
+                }
 
             }
         }
