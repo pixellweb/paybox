@@ -4,12 +4,12 @@
 namespace PixellWeb\Paybox\app;
 
 
-
+use Spatie\ArrayToXml\ArrayToXml;
 
 class PaymentRequest
 {
 
-    protected ?array $echeancier;
+    protected ?array $echeancier = null;
 
     protected int $total_quantite = 1;
 
@@ -25,7 +25,6 @@ class PaymentRequest
     const PBX_RETOUR_SIGNATURE = 'signature';
 
 
-
     /**
      * @param array|null $echeancier
      */
@@ -35,12 +34,9 @@ class PaymentRequest
     }
 
 
-
-
     /**
      * Payment gateway invocation
      *
-     * @param Reservation $reservation
      * @return array
      * @throws PayboxException
      * @internal param Order $order processed order
@@ -49,38 +45,52 @@ class PaymentRequest
     {
         $hash_algo = $this->getHashAlgorithm();
 
-        // TODO $amount = $reservation->echeancier->count() ?  $reservation->echeancier->first()->montant : ($reservation->acompte ?? $reservation->total);
-
         $paybox_params = array(
-            'PBX_SITE'         => config('paybox.site'),
-            'PBX_RANG'         => config('paybox.rang'),
-            'PBX_IDENTIFIANT'  => config('paybox.identifiant'),
-            'PBX_RETOUR'       => self::getPbxRetourSring(),
-            'PBX_HASH'         => $hash_algo,
-            'PBX_ANNULE'       => route(config('paybox.url_refuse')),
-            'PBX_EFFECTUE'     => route(config('paybox.url_effectue')),
-            'PBX_ATTENTE'      => route(config('paybox.url_attente')),
-            'PBX_REFUSE'       => route(config('paybox.url_refuse')),
-            'PBX_REPONDRE_A'   => route(config('paybox.url_repondre_a')),
-            'PBX_TOTAL'        => $this->formatMontant($this->montant),
-            'PBX_DEVISE'       => config('paybox.devise'),
-            'PBX_CMD'          => $this->reference,
-            'PBX_PORTEUR'      => $this->email,
-            'PBX_TIME'         => date("c"),
-            'PBX_RUF1'         => 'POST',
+            'PBX_SITE'          => config('paybox.site'),
+            'PBX_RANG'          => config('paybox.rang'),
+            'PBX_IDENTIFIANT'   => config('paybox.identifiant'),
+            'PBX_RETOUR'        => self::getPbxRetourString(),
+            'PBX_HASH'          => $hash_algo,
+            'PBX_ANNULE'        => route(config('paybox.url_refuse')),
+            'PBX_EFFECTUE'      => route((!config('paybox.test_ipn_local') or !config('app.debug')) ? config('paybox.url_effectue') : config('paybox.url_repondre_a')),
+            'PBX_ATTENTE'       => route(config('paybox.url_attente')),
+            'PBX_REFUSE'        => route(config('paybox.url_refuse')),
+            'PBX_REPONDRE_A'    => route(config('paybox.url_repondre_a')),
+            'PBX_TOTAL'         => $this->formatMontant($this->montant),
+            'PBX_DEVISE'        => config('paybox.devise'),
+            'PBX_CMD'           => $this->reference,
+            'PBX_PORTEUR'       => $this->email,
+            'PBX_TIME'          => date("c"),
+            'PBX_RUF1'          => 'POST',
             //'PBX_TYPEPAIEMENT' => 'CARTE',
             //'PBX_TYPECARTE'    => 'CB',
             //'PBX_LANGUE'       =>  App::getLocale() == 'us' ? 'GBR' : 'FRA',
-            'PBX_SHOPPINGCART'    => '<?xml version="1.0" encoding="utf-8"?><shoppingcart><total><totalQuantity>'.$this->formatTextValue($this->total_quantite, 'N', 2).'</totalQuantity></total></shoppingcart>',
-            'PBX_BILLING'       => '<?xml version="1.0" encoding="utf-8"?><Billing><Address><FirstName>'.$this->formatTextValue($this->prenom, 'ANS', 30).'</FirstName><LastName>'.$this->formatTextValue($this->nom, 'ANS', 30).'</LastName><Address1>'.$this->formatTextValue($this->adresse, 'ANS', 50).'</Address1><ZipCode>'.$this->formatTextValue($this->cp, 'ANS', 16).'</ZipCode><City>'.$this->formatTextValue($this->ville, 'ANS', 50).'</City><CountryCode>'.$this->formatTextValue($this->pays_code, 'N', 3).'</CountryCode></Address></Billing>',
+            'PBX_SHOPPINGCART'  => Tools::arrayToXml([
+                'total' => [
+                    'totalQuantity' => $this->formatTextValue($this->total_quantite, 'N', 2)
+                ]
+            ], 'shoppingcart'),
+            'PBX_BILLING'       => Tools::arrayToXml([
+                'Address' => [
+                    'FirstName' => $this->formatTextValue($this->prenom, 'ANS', 30),
+                    'LastName' => $this->formatTextValue($this->nom, 'ANS', 30),
+                    'Address1' => $this->formatTextValue($this->adresse, 'ANS', 50),
+                    'ZipCode' => $this->formatTextValue($this->cp, 'ANS', 16),
+                    'City' => $this->formatTextValue($this->ville, 'ANS', 50),
+                    'CountryCode' => $this->formatTextValue($this->pays_code, 'N', 3),
+                    'CountryCodeMobilePhone' => $this->formatTextValue($this->country_code_mobile_phone, 'ANS', 4),
+                    'MobilePhone' => $this->formatTextValue($this->mobile_phone, 'AN', 10),
+                ]
+            ], 'Billing'),
+
         );
 
         //paiement en plusieurs fois
         if ($this->echeancier) {
             foreach ($this->echeancier as $key => $echeance) {
                 $paybox_params += [
-                    'PBX_2MONT'.($key + 1) => $this->formatMontant($echeance['montant']),
-                    'PBX_DATE'.($key + 1) => $echeance['date'],
+                    'PBX_2MONT' . ($key + 1) => $this->formatMontant($echeance['montant']),
+                    'PBX_DATE' . ($key + 1) => $echeance['date'],
                 ];
             }
         }
@@ -98,7 +108,10 @@ class PaymentRequest
         return $paybox_params;
     }
 
-    public function link()
+    /**
+     * @throws PayboxException
+     */
+    public function link(): string
     {
         $query = '';
         foreach ($this->pay() as $key => $value) {
@@ -115,7 +128,7 @@ class PaymentRequest
      * @throws PayboxException
      * @throw \RuntimeException if no algorithm was found.
      */
-    protected function getHashAlgorithm()
+    protected function getHashAlgorithm(): string
     {
         // Possible hashes
         $hashes = array(
@@ -135,22 +148,22 @@ class PaymentRequest
         throw new PayboxException("Failed to find a suitable hash algorithm. Please check your PHP configuration.");
     }
 
-    protected function formatMontant($montant) :int
+    protected function formatMontant($montant): int
     {
-        return (int) round(100 * $montant);
+        return (int)round(100 * $montant);
     }
 
-    static public function getPbxRetourSring() :string
+    static public function getPbxRetourString(): string
     {
         $pbx_retour = [];
 
         foreach (self::PBX_RETOUR as $code => $variable) {
-            $pbx_retour[] = $variable.':'.$code;
+            $pbx_retour[] = $variable . ':' . $code;
         }
         return implode(';', $pbx_retour);
     }
 
-    protected function formatTextValue($value, $type, $maxLength)
+    protected function formatTextValue($value, $type, $maxLength): string
     {
         /*
         AN : Alpha Numérique sans caractères spéciaux
@@ -183,21 +196,21 @@ class PaymentRequest
         $value = trim(preg_replace("/\r|\n/", '', $value));
 
         // Cut the string when needed
-        $value = mb_substr($value, 0, $maxLength, 'UTF-8');
-
-        return $value;
+        return mb_substr($value, 0, $maxLength, 'UTF-8');
     }
 
     public function __construct(
         protected string $reference,
-        protected float $montant,
+        protected float  $montant,
         protected string $email,
         protected string $prenom,
         protected string $nom,
         protected string $adresse = 'Avenue du paradis',
         protected string $cp = '75001',
         protected string $ville = 'Paris',
-        protected int $pays_code = 250
+        protected int    $pays_code = 250,
+        protected string $country_code_mobile_phone = '+33',
+        protected string $mobile_phone = '0500000000',
     )
     {
 

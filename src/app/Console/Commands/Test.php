@@ -4,12 +4,14 @@ namespace PixellWeb\Paybox\app\Console\Commands;
 
 
 use Illuminate\Console\Command;
+use Illuminate\Container\EntryNotFoundException;
 use Illuminate\Validation\Rule;
 use Ipsum\Admin\app\Classes\LogViewer;
 use Ipsum\Reservation\app\Models\Reservation\Paiement;
 use PixellWeb\Paybox\app\FormRequest\IPNResponse;
 use PixellWeb\Paybox\app\PaymentRequest;
 use PixellWeb\Paybox\app\Rules\Signature;
+use PixellWeb\Paybox\app\Tools;
 
 class Test extends Command
 {
@@ -42,9 +44,10 @@ class Test extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
+     * @throws EntryNotFoundException
      */
-    public function handle()
+    public function handle(): void
     {
 
 
@@ -58,6 +61,13 @@ class Test extends Command
             if (isset($output_array[1])) {
 
                 $datas = json_decode($output_array[1], true);
+
+                /*if ($datas['erreur'] != '00000') {
+                    $datas['signature'] = urlencode($datas['signature']);
+                    echo Tools::getSignedData($datas, true);
+                    die();
+                }*/
+
                 $datas['query'] = $datas;
 
                 $validator = \Validator::make($datas, [

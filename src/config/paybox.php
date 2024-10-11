@@ -3,9 +3,11 @@
 return [
 
 
-    'test' => env('PAYBOX_TEST',true),
+    'test' => env('PAYBOX_TEST',false),
 
-    'url_paybox' => env('PAYBOX_TEST') ? 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi' : 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi',
+    'test_ipn_local' => env('PAYBOX_TEST_IPN_LOCAL',false),
+
+    'url_paybox' => (env('PAYBOX_TEST') and env('APP_DEBUG')) ? 'https://preprod-tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi' : 'https://tpeweb.paybox.com/cgi/MYchoix_pagepaiement.cgi',
 
     'secret' => env('PAYBOX_SECRET','0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'),
     'site' => env('PAYBOX_SITE','1999888'),
@@ -27,8 +29,7 @@ Ka1g88CjFwRw/PB9kwIDAQAB
     'rule_transaction_unique' => 'unique:paiements,transaction_ref',
 
     'url_annule'     => 'paiement.refuse',
-    //'url_effectue'     => 'reservation.confirmation',
-    'url_effectue'     => 'paiement.ipn',
+    'url_effectue'     => 'reservation.confirmation',
     'url_attente'      => 'reservation.confirmation',
     'url_refuse'       => 'paiement.refuse',
     'url_repondre_a'   => 'paiement.ipn',

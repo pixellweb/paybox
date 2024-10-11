@@ -2,6 +2,7 @@
 
 namespace PixellWeb\Paybox\app\Rules;
 
+use Exception;
 use Illuminate\Contracts\Validation\Rule;
 use PixellWeb\Paybox\app\PaymentRequest;
 use PixellWeb\Paybox\app\PaymentResponse;
@@ -25,9 +26,9 @@ class Signature implements Rule
      * @param  string $attribute
      * @param  mixed $value
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
-    public function passes($attribute, $value)
+    public function passes($attribute, $value): bool
     {
         return (new PaymentResponse($value[PaymentRequest::PBX_RETOUR_SIGNATURE] ?? null, $value))->verifySignature();
     }
@@ -39,7 +40,7 @@ class Signature implements Rule
      *
      * @return string
      */
-    public function message()
+    public function message(): string
     {
         return 'Problème de sécurité. La signature n\'est pas valide.';
     }

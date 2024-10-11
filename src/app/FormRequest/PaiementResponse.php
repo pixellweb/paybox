@@ -6,11 +6,12 @@ namespace PixellWeb\Paybox\app\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest as HttpFormRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use PixellWeb\Paybox\app\Rules\Signature;
 use PixellWeb\Paybox\app\Tools;
 
 
-class IPNResponse extends HttpFormRequest
+class PaiementResponse extends HttpFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,32 +28,19 @@ class IPNResponse extends HttpFormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'query' => ['required', 'array', new Signature()],
-            'signature' => ['required'],
-            'reference' => ['required', config('paybox.rule_exists')],
-            'erreur' => ['required'],
-            'montant' => ['nullable', 'numeric'],
-            'transaction_ref' => ['nullable', config('paybox.rule_transaction_unique')],
+            'erreur' => ['required', Rule::in(['00000'])],
+            'montant' => ['required'],
+            'autorisation_ref' => ['required']
         ];
-    }
-
-
-    protected function prepareForValidation(): void
-    {
-        Log::channel(config('paybox.logging_channel'))->info('Traitement IPN', $this->all());
-        Log::channel(config('paybox.logging_channel'))->info(Tools::getSignedData($this->all(), true));
-
-        $this->merge([
-            'query' => $this->all()
-        ]);
     }
 
 
     protected function failedValidation(\Illuminate\Validation\Validator|Validator $validator): void
     {
+
         Log::channel(config('paybox.logging_channel'))->critical($validator->messages());
 
         abort(200);

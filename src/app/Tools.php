@@ -5,6 +5,8 @@ namespace PixellWeb\Paybox\app;
 
 
 
+use Spatie\ArrayToXml\ArrayToXml;
+
 class Tools
 {
 
@@ -12,10 +14,10 @@ class Tools
      * Get parameters like querystring.
      *
      * @param array $parameters
-     *
+     * @param bool $with_signature_parameter
      * @return string
      */
-    static public function getSignedData(array $parameters, bool $with_signature_parameter = false)
+    static public function getSignedData(array $parameters, bool $with_signature_parameter = false): string
     {
         if (!$with_signature_parameter) {
             unset($parameters[PaymentRequest::PBX_RETOUR_SIGNATURE]);
@@ -50,9 +52,12 @@ class Tools
         $string = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $string);
 
         // removing the remaining bits
-        $string = preg_replace('#&[^;]+;#', '', $string);
+        return preg_replace('#&[^;]+;#', '', $string);
+    }
 
-        return $string;
+    static public function arrayToXml(array $array, string $rootElement): string
+    {
+        return str_replace("\n", "", ArrayToXml::convert($array, $rootElement));
     }
 
 }

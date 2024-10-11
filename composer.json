@@ -9,6 +9,9 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "spatie/array-to-xml": "^3.3.0",
+        "ext-openssl": "*",
+        "ext-iconv": "*"
     },
     "autoload": {
         "psr-4": {
