@@ -177,10 +177,10 @@ class PaymentRequest
             default:
             case 'AN':
                 $value = Tools::stripAccents($value);
-                $value = preg_replace('/[^-. a-zA-Z0-9]/', '', $value);
+                $value = preg_replace('/[^[:alnum:]]/', '', $value);
                 break;
             case 'ANP':
-                $value = preg_replace('/[^ [:alpha:]]/', '', $value);
+                $value = preg_replace('/[^ [:alnum:]]/u', '', $value);
                 break;
             case 'ANS':
                 break;
