@@ -102,6 +102,10 @@ class PaymentRequest
             }
         }
 
+        if ($this->paybox_params) {
+            $paybox_params = array_merge($paybox_params, $this->paybox_params);
+        }
+
         // Generate signature
         $param = '';
         foreach ($paybox_params as $key => $value) {
@@ -220,6 +224,7 @@ class PaymentRequest
         protected string $mobile_phone = '0500000000',
         protected ?string $type_paiement = null,
         protected ?string $type_carte = null,
+        protected ?array $paybox_params = null,
     )
     {
 
