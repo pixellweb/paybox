@@ -85,6 +85,13 @@ class PaymentRequest
 
         );
 
+        if ($this->type_paiement) {
+            $paybox_params['PAYBOX_PAYMENT'] = $this->type_paiement;
+        }
+        if ($this->type_carte) {
+            $paybox_params['PBX_TYPECARTE'] = $this->type_carte;
+        }
+
         //paiement en plusieurs fois
         if ($this->echeancier) {
             foreach ($this->echeancier as $key => $echeance) {
@@ -211,6 +218,8 @@ class PaymentRequest
         protected int    $pays_code = 250,
         protected string $country_code_mobile_phone = '+33',
         protected string $mobile_phone = '0500000000',
+        protected ?string $type_paiement = null,
+        protected ?string $type_carte = null,
     )
     {
 
