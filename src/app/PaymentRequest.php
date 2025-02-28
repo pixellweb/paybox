@@ -77,7 +77,7 @@ class PaymentRequest
                     'Address1' => $this->formatTextValue($this->adresse, 'ANS', 50),
                     'ZipCode' => $this->formatTextValue($this->cp, 'ANS', 16),
                     'City' => $this->formatTextValue($this->ville, 'ANS', 50),
-                    'CountryCode' => $this->formatTextValue($this->pays_code, 'N', 3),
+                    'CountryCode' => str_pad($this->formatTextValue($this->pays_code, 'N', 3), 3, "0", STR_PAD_LEFT),
                     'CountryCodeMobilePhone' => $this->formatTextValue($this->country_code_mobile_phone, 'ANS', 4),
                     'MobilePhone' => $this->formatTextValue($this->mobile_phone, 'AN', 10),
                 ]
