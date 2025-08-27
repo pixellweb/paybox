@@ -11,8 +11,8 @@ return [
 
     'secret' => env('PAYBOX_SECRET','0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'),
     'site' => env('PAYBOX_SITE','1999888'),
-    'rang' => env('PAYBOX_RANG','43'),
-    'identifiant' => env('PAYBOX_ID','107975626'),
+    'rang' => env('PAYBOX_RANG','32'),
+    'identifiant' => env('PAYBOX_ID','110647233'),
 
     'devise' => 978,
 
