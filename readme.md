@@ -1,11 +1,6 @@
 ## Notes
 
 
-https://www.paybox-services.com/
-
-
-
-
 ```
 ### fichier .en
 
