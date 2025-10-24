@@ -78,7 +78,7 @@ class Test extends Command
                     'montant' => ['nullable', 'numeric'],
                 ]);
                 if ($validator->fails()) {
-                    dump($validator->errors()->all(), $log, $datas['query']);
+                    dump($validator->errors()->all(),/* $log,*/ $datas['query']);
                 }
 
             }

@@ -15,7 +15,6 @@ class PaymentResponse
     /**
      * @param string $signature
      * @param array $attribute
-     * @return null
      */
     public function __construct(string $signature, array $attribute)
     {
