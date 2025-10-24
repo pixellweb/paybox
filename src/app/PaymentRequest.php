@@ -51,6 +51,7 @@ class PaymentRequest
             'PBX_IDENTIFIANT'   => config('paybox.identifiant'),
             'PBX_RETOUR'        => self::getPbxRetourString(),
             'PBX_HASH'          => $hash_algo,
+            'PBX_SIGN_KEYSIZE'  => 2048,
             'PBX_ANNULE'        => route(config('paybox.url_refuse')),
             'PBX_EFFECTUE'      => route((!config('paybox.test_ipn_local') or !config('app.debug')) ? config('paybox.url_effectue') : config('paybox.url_repondre_a')),
             'PBX_ATTENTE'       => route(config('paybox.url_attente')),
