@@ -4,7 +4,6 @@
 namespace PixellWeb\Paybox\app;
 
 
-use Spatie\ArrayToXml\ArrayToXml;
 
 class PaymentRequest
 {
@@ -13,16 +12,15 @@ class PaymentRequest
 
     protected int $total_quantite = 1;
 
-    const PBX_RETOUR = [
+    protected array $pbx_retour = [
         'M' => 'montant',
         'R' => 'reference',
         'S' => 'transaction_ref',
         'A' => 'autorisation_ref',
         'E' => 'erreur',
-        // signature should be always last return field
-        'K' => 'signature'
     ];
     const PBX_RETOUR_SIGNATURE = 'signature';
+    const PBX_RETOUR_SIGNATURE_KEY = 'K';
 
 
     /**
@@ -49,7 +47,7 @@ class PaymentRequest
             'PBX_SITE'          => config('paybox.site'),
             'PBX_RANG'          => config('paybox.rang'),
             'PBX_IDENTIFIANT'   => config('paybox.identifiant'),
-            'PBX_RETOUR'        => self::getPbxRetourString(),
+            'PBX_RETOUR'        => $this->getPbxRetourString(),
             'PBX_HASH'          => $hash_algo,
             'PBX_SIGN_KEYSIZE'  => 2048,
             'PBX_ANNULE'        => route(config('paybox.url_refuse')),
@@ -107,9 +105,11 @@ class PaymentRequest
             $paybox_params = array_merge($paybox_params, $this->paybox_params);
         }
 
+        $this->paybox_params = $paybox_params;
+
         // Generate signature
         $param = '';
-        foreach ($paybox_params as $key => $value) {
+        foreach ($this->paybox_params as $key => $value) {
             $param .= "&" . $key . '=' . $value;
         }
         $param = ltrim($param, '&');
@@ -162,14 +162,16 @@ class PaymentRequest
 
     protected function formatMontant($montant): int
     {
-        return (int)round(100 * $montant);
+        return (int) round(100 * $montant);
     }
 
-    static public function getPbxRetourString(): string
+    protected function getPbxRetourString(): string
     {
         $pbx_retour = [];
 
-        foreach (self::PBX_RETOUR as $code => $variable) {
+        $this->setPbxRetourSignature();
+
+        foreach ($this->pbx_retour as $code => $variable) {
             $pbx_retour[] = $variable . ':' . $code;
         }
         return implode(';', $pbx_retour);
@@ -209,6 +211,19 @@ class PaymentRequest
 
         // Cut the string when needed
         return mb_substr($value, 0, $maxLength, 'UTF-8');
+    }
+
+    protected function setPbxRetourSignature(): void
+    {
+        // signature should be always last return field
+        $this->pbx_retour[self::PBX_RETOUR_SIGNATURE_KEY] = self::PBX_RETOUR_SIGNATURE;
+    }
+
+    public function sansDebit(): void
+    {
+        $this->paybox_params['PBX_AUTOSEULE'] = 'O';
+        $this->pbx_retour['U'] = 'retour';
+        $this->pbx_retour['D'] = 'carte_date';
     }
 
     public function __construct(
