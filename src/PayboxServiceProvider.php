@@ -2,6 +2,7 @@
 
 namespace PixellWeb\Paybox;
 
+use App\Http\Middleware\TrimStrings;
 use Illuminate\Support\ServiceProvider;
 use PixellWeb\Paybox\app\Console\Commands\Test;
 
@@ -30,6 +31,8 @@ class PayboxServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->addCustomConfigurationValues();
+
+        TrimStrings::skipWhen(fn ($request) => $request->url() === route(config('paybox.url_repondre_a')));
     }
 
     public function addCustomConfigurationValues()
