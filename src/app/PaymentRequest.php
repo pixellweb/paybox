@@ -162,7 +162,7 @@ class PaymentRequest
 
     protected function formatMontant($montant): int
     {
-        return (int) round(100 * $montant);
+        return (int) round_prix(100 * $montant);
     }
 
     protected function getPbxRetourString(): string
