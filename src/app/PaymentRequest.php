@@ -49,7 +49,7 @@ class PaymentRequest
             'PBX_IDENTIFIANT'   => config('paybox.identifiant'),
             'PBX_RETOUR'        => $this->getPbxRetourString(),
             'PBX_HASH'          => $hash_algo,
-            'PBX_SIGN_KEYSIZE'  => 2048,
+            'PBX_SIGN_KEYSIZE'  => strlen(config('paybox.public_key')) == 276 ? 1024 : 2048,
             'PBX_ANNULE'        => route(config('paybox.url_refuse')),
             'PBX_EFFECTUE'      => route((config('paybox.test_ipn_local') and config('app.debug')) ? config('paybox.url_repondre_a') : config('paybox.url_effectue')),
             'PBX_ATTENTE'       => route(config('paybox.url_attente')),
