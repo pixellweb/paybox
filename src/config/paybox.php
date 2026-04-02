@@ -26,6 +26,15 @@ EDe9RFHELMEHxmSZjwqSyX81uNoIshY5YjMtJ6puCI8q7VJnB3+9W5OUll1127pt
 8wIDAQAB
 -----END PUBLIC KEY-----',
 
+    // TODO a supprimer dans quelques mois (a cause de paiements en plusieurs fois sur lokizy)
+    'public_key_old' => '-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDe+hkicNP7ROHUssGNtHwiT2Ew
+HFrSk/qwrcq8v5metRtTTFPE/nmzSkRnTs3GMpi57rBdxBBJW5W9cpNyGUh0jNXc
+VrOSClpD5Ri2hER/GcNrxVRP7RlWOqB1C03q4QYmwjHZ+zlM4OUhCCAtSWflB4wC
+Ka1g88CjFwRw/PB9kwIDAQAB
+-----END PUBLIC KEY-----',
+
+
     'logging_channel' => 'paiement',
 
     'rule_exists' => 'exists:reservations,reference',
